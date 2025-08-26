@@ -1,1 +1,168 @@
 SparkRDD
+
+1) Spark setup (local mode)
+# Optional: set JAVA_HOME if needed
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+
+# Start Spark shell quick check
+pyspark --master local[*] --version
+
+2) RDD job (single file)
+
+Save as rdd_jobs.py:
+
+#!/usr/bin/env python3
+# Part 2 – Spark Core (RDD Operations)
+# Runs in local mode and reads from HDFS
+
+from pyspark.sql import SparkSession
+from pyspark import StorageLevel
+import csv
+from io import StringIO
+
+# ---------- Spark ----------
+spark = (SparkSession.builder
+         .appName("RetailRDD")
+         .master("local[*]")            # remove if using cluster submit
+         .getOrCreate())
+sc = spark.sparkContext
+sc.setLogLevel("WARN")
+
+# ---------- Paths ----------
+HDFS_RAW = "hdfs:///retail/raw/"
+orders_path   = HDFS_RAW + "orders.csv"
+products_path = HDFS_RAW + "products.csv"
+
+# ---------- CSV parsing helpers (fast & safe) ----------
+def parse_csv_line(line):
+    # robust parser using csv.reader (handles commas in fields)
+    return next(csv.reader([line]))
+
+def parse_partitions(iter_lines):
+    # amortize csv.reader creation per partition
+    rdr = csv.reader(iter_lines)
+    for row in rdr:
+        yield [c.strip() for c in row]
+
+# ---------- Load Orders as RDD ----------
+orders_rdd = sc.textFile(orders_path)
+header = orders_rdd.first()
+orders_rdd = (orders_rdd
+              .filter(lambda x: x != header)
+              .mapPartitions(parse_partitions))
+
+# Schema: order_id, customer_id, product, category, quantity, price, order_date
+bad_acc = sc.accumulator(0)
+
+def to_product_amount(row):
+    try:
+        product = row[2]
+        qty = float(row[4])
+        price = float(row[5])
+        return (product, qty * price)
+    except Exception:
+        bad_acc.add(1); return None
+
+def to_customer_amount(row):
+    try:
+        cust = row[1]
+        amt  = float(row[4]) * float(row[5])
+        return (cust, amt)
+    except Exception:
+        bad_acc.add(1); return None
+
+# ---- Key-Value transform + reduceByKey (total sales per product) ----
+sales_per_product = (orders_rdd
+    .map(to_product_amount)
+    .filter(lambda kv: kv is not None)
+    .reduceByKey(lambda a, b: a + b)
+    .persist(StorageLevel.MEMORY_ONLY))
+
+# ---- Top 5 customers by purchase value ----
+top5_customers = (orders_rdd
+    .map(to_customer_amount)
+    .filter(lambda kv: kv is not None)
+    .reduceByKey(lambda a, b: a + b)
+    .takeOrdered(5, key=lambda kv: -kv[1]))
+
+# ---------- Broadcast small product reference (product -> category, price) ----------
+# products.csv: product, category, price
+products_rdd = sc.textFile(products_path)
+pheader = products_rdd.first()
+prod_map = (products_rdd
+    .filter(lambda x: x != pheader)
+    .mapPartitions(parse_partitions)
+    .map(lambda r: (r[0], {"category": r[1], "price": float(r[2])}))
+    .collectAsMap())
+bprod = sc.broadcast(prod_map)
+
+# Enrich totals with product metadata via map-side lookup (no shuffle)
+enriched = sales_per_product.map(
+    lambda kv: (kv[0], round(kv[1], 2), bprod.value.get(kv[0], {"category": "NA", "price": None}))
+)
+
+# ---------- Save outputs to HDFS ----------
+out_base = "hdfs:///retail/outputs/rdd/"
+# TSV text outputs for easy cat/head
+(sc.parallelize(
+    [f"{p}\t{amt:.2f}\t{meta['category']}" for (p, amt, meta) in enriched.collect()]
+ ).coalesce(1).saveAsTextFile(out_base + "sales_per_product_tsv"))
+
+(sc.parallelize(
+    [f"{cust}\t{amt:.2f}" for (cust, amt) in top5_customers]
+ ).coalesce(1).saveAsTextFile(out_base + "top5_customers_tsv"))
+
+print("Invalid records:", bad_acc.value)
+spark.stop()
+
+Why this is efficient
+
+mapPartitions CSV parsing → less Python overhead per record.
+
+Accumulators to count bad rows.
+
+Broadcast lookup for product metadata (no wide shuffle).
+
+reduceByKey on compact key-value RDDs.
+
+Outputs as single-part TSV for easy cat/head.
+
+3) How to run (and what to screenshot)
+# Submit job in local mode reading from HDFS:
+spark-submit --master local[*] rdd_jobs.py
+
+
+Screenshots to capture:
+
+spark-submit console output (showing “Invalid records: X”).
+
+HDFS outputs listing:
+
+hdfs dfs -ls -R /retail/outputs/rdd
+
+
+Preview files:
+
+hdfs dfs -cat /retail/outputs/rdd/sales_per_product_tsv/part-* | head -n 10
+hdfs dfs -cat /retail/outputs/rdd/top5_customers_tsv/part-*    | head -n 10
+
+4) Expected output format (preview from the sample CSVs)
+
+I computed a quick preview from the sample CSVs so you know the shape. Your actual numbers may differ if you edited the CSVs.
+
+sales_per_product_tsv (sample look):
+
+Product_4    419.93    Sports
+Product_5    314.79    Books
+Product_1    199.99    Electronics
+Product_3     79.92    Grocery
+Product_2     49.99    Clothing
+
+
+top5_customers_tsv (sample look):
+
+7    419.93
+6    364.77
+9    199.99
+8    129.91
+3     49.99
