@@ -3,3 +3,17 @@ from pyspark.sql import SparkSession
 spark = SparkSession.builder \
     .appName("ChurnPredictionLab") \
     .getOrCreate()
+----------------------------------------------
+data = spark.read.csv("churn.csv", header=True, inferSchema=True)
+data.show(5)
+from pyspark.ml.feature import StringIndexer, VectorAssembler
+
+indexer = StringIndexer(inputCol="gender", outputCol="gender_indexed")
+assembler = VectorAssembler(
+    inputCols=["age", "balance", "gender_indexed"],
+    outputCol="features"
+)
+from pyspark.ml.classification import LogisticRegression
+
+lr = LogisticRegression(featuresCol="features", labelCol="churn")
+model = lr.fit(transformed_data)
