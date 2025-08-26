@@ -17,3 +17,63 @@ from pyspark.ml.classification import LogisticRegression
 
 lr = LogisticRegression(featuresCol="features", labelCol="churn")
 model = lr.fit(transformed_data)
+-------------------
+from pyspark.sql import SparkSession
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType
+from pyspark.ml.feature import StringIndexer, OneHotEncoder, VectorAssembler
+from pyspark.ml import Pipeline
+
+# 1. Start SparkSession
+spark = SparkSession.builder \
+    .appName("ChurnPrediction") \
+    .getOrCreate()
+# 2. Define schema (important to avoid type inference issues)
+schema = StructType([
+    StructField("customerID", StringType(), True),
+    StructField("gender", StringType(), True),
+    StructField("SeniorCitizen", IntegerType(), True),
+    StructField("Partner", StringType(), True),
+    StructField("Dependents", StringType(), True),
+    StructField("tenure", IntegerType(), True),
+    StructField("PhoneService", StringType(), True),
+    StructField("MultipleLines", StringType(), True),
+    StructField("InternetService", StringType(), True),
+    StructField("OnlineSecurity", StringType(), True),
+    StructField("OnlineBackup", StringType(), True),
+    StructField("DeviceProtection", StringType(), True),
+    StructField("TechSupport", StringType(), True),
+    StructField("StreamingTV", StringType(), True),
+StructField("StreamingMovies", StringType(), True),
+    StructField("Contract", StringType(), True),
+    StructField("PaperlessBilling", StringType(), True),
+    StructField("PaymentMethod", StringType(), True),
+    StructField("MonthlyCharges", DoubleType(), True),
+    StructField("TotalCharges", DoubleType(), True),
+    StructField("Churn", StringType(), True)
+])
+# 3. Read CSV
+data = spark.read.csv("/home/ubuntu/churn.csv", header=True, schema=schema)
+
+# 4. Index categorical columns
+categorical_cols = ["gender","Partner","Dependents","PhoneService",
+                    "MultipleLines","InternetService","OnlineSecurity",
+                    "OnlineBackup","DeviceProtection","TechSupport",
+                    "StreamingTV","StreamingMovies","Contract",
+                    "PaperlessBilling","PaymentMethod","Churn"]
+
+indexers = [StringIndexer(inputCol=col, outputCol=col+"_index", handleInvalid="skip") 
+            for col in categorical_cols]
+# 5. Assemble features
+numeric_cols = ["SeniorCitizen","tenure","MonthlyCharges","TotalCharges"]
+feature_cols = [col+"_index" for col in categorical_cols[:-1]] + numeric_cols
+
+assembler = VectorAssembler(inputCols=feature_cols, outputCol="features")
+
+# 6. Build pipeline
+pipeline = Pipeline(stages=indexers + [assembler])
+
+# 7. Transform data
+model = pipeline.fit(data)
+final_df = model.transform(data)
+
+final_df.select("customerID", "features", "Churn_index").show(5, truncate=False)
