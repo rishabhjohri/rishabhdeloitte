@@ -1,0 +1,39 @@
+Bias-Variance Tradeoff
+Cross-validation techniques
+Confusion Matrix
+ROC Curve and AUC
+Precision-Recall Tradeoff
+Overfitting vs Underfitting
+Regularization Techniques
+ 
+Classification:
+ 
+Logistic Regression
+k-Nearest Neighbors (kNN)
+Support Vector Machines (SVM)
+Decision Trees
+Random Forest
+Naive Bayes
+Gradient Boosting, XGBoost, LightGBM, CatBoost
+Evaluation Metrics (Accuracy, Precision, Recall, F1-score, ROC-AUC)
+ 
+Regression:
+ 
+Linear Regression
+Polynomial Regression
+Regularization (Ridge, Lasso, ElasticNet)
+Evaluation Metrics (MAE, MSE, RMSE, R²)
+ 
+Introduction to Machine Learning
+ 
+What is Machine Learning?
+Difference between AI, ML, and Deep Learning
+Types of Learning:
+ 
+Supervised Learning
+Unsupervised Learning
+Semi-supervised Learning
+Reinforcement Learning
+ML Workflow / Pipeline Overview
+Real-world applications of ML
+ 
