@@ -1,0 +1,86 @@
+Absolutely, preparing your resume for a platform like Deloitte’s Professional Network is a strategic move! Let’s create a sample data engineer resume tailored to industry expectations and Deloitte standards. I’ll incorporate your background, fill in cloud/data engineering details, and structure it for maximum impact. Below is a revised template and guidance on what to emphasize.
+
+Sample Resume for a Data Engineer (Deloitte Ready)
+Rishabh Johri
+
+Contact: +91-6266046936 | rishabh2000johri2@gmail.com
+LinkedIn: linkedin.com/in/rishabh-johri-156a39174
+GitHub: github.com/rishabhjohri
+Location: (Add your city if needed)
+
+
+Professional Summary
+Enthusiastic Data Engineer with strong foundation in machine learning, big data analytics, and cloud platforms (GCP, AWS, Azure). Proven ability to manage data pipelines, design scalable data architectures, and deliver actionable insights with modern data engineering tools. Adept at leveraging Python, SQL, and data visualization tools to optimize business outcomes.
+
+Education
+Master of Technology (Artificial Intelligence)
+Indian Institute Of Technology, Jodhpur (2023–2025) — CGPA: 7.69
+Bachelor of Technology (CSE with Data Science)
+Vellore Institute of Technology, Vellore (2019–2023) — CGPA: 8.68
+
+Technical Skills
+
+Languages: Python, SQL, R, MATLAB, Julia, C/C++, Java, JavaScript, Golang
+Data Engineering & Cloud Tools: PySpark, Hadoop, Google Cloud Platform (BigQuery, GCP Storage), AWS (S3, Redshift), Azure, Docker, Git, Power BI, Tableau
+Libraries/Frameworks: Pandas, NumPy, scikit-learn, TensorFlow, PyTorch, TorchScript, ONNX, TensorBoard
+Databases: MongoDB, MySQL, BigQuery
+Other Tools: Jupyter Notebook, Google Colab, WandB, Linux
+Web Technologies: HTML, CSS, JavaScript, Django, Flask, Node.js, React
+
+
+Certifications
+
+IBM Applied AI Professional Certification (2023)
+Google Cloud Platform Certification (2020)
+AWS Cloud Certification (2020)
+Kaggle Intermediate ML Certification
+HackerRank Python, Java, JavaScript (2023)
+
+
+Professional Experience
+Evoastra Ventures Inc. — Data Scientist Intern (Remote)
+Jun 2024 – Aug 2024
+
+Developed and deployed ML models for business analytics using TensorFlow, PyTorch & scikit-learn; streamlined ETL pipelines on GCP and AWS.
+Built interactive dashboards (Tableau, Power BI) for business stakeholders.
+Automated data ingestion and preprocessing pipelines with Pandas and SQL.
+
+IOTAGI — Data Analyst Intern (Vellore)
+Jul 2021 – Aug 2021
+
+Analyzed large datasets using Google BigQuery and Python for statistical modeling and data mining.
+Implemented data visualization solutions in Tableau/Power BI to drive business decisions.
+Optimized SQL queries to enhance performance and reduce data latency.
+
+
+Featured Projects
+
+Autoencoder-based Text Encryption: Designed and deployed Flask web app for secure text encryption using deep learning (PyTorch, GCP).
+Behavioral Analysis - Screen Time and Health: Used PySpark, Hadoop, Tableau, and Seaborn to uncover associations in big data related to user health and digital behavior.
+Detection of Discriminatory Comments: Built NLP model to filter racism, sexism, and hate speech; integrated with Django and Colab.
+Sarcasm Detection Web App: Deployed RNN + Q-learning on GCP with feedback mechanism for active learning.
+
+
+Leadership & Achievements
+
+Teaching Assistant: Intro to Machine Learning, IIT Jodhpur (2023–2024)
+GATE CS Qualified
+2nd position, Data Unchained by IIIT-D
+
+
+Additional Tips for Deloitte Upload:
+
+Use bullet points for clear impact.
+Put “Cloud” and “Big Data” keywords up-front if applying for engineering/data roles.
+Quantify results (e.g., “reduced latency by 30%”).
+Highlight certifications directly under “Skills” or a separate “Certifications” section.
+Structure projects to emphasize your engineering contributions, not just academic focus.
+
+
+Would you like your resume refined further, or specific achievements quantified? I can help you tailor it for specific Deloitte roles or guide you on optimizing your resume profile for better visibility.
+
+
+How to highlight cloud skills for Deloitte roles
+Suggest quantifiable metrics for my resume
+
+
